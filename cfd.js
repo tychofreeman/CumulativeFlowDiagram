@@ -1,23 +1,31 @@
 var data = [
-	{ ToDo: 1, InProgress: 0, QA: 0, ReleaseReady: 0, Released: 0 },
-	{ ToDo: 3, InProgress: 1, QA: 0, ReleaseReady: 0, Released: 0 },
-	{ ToDo: 6, InProgress: 2, QA: 1, ReleaseReady: 0, Released: 0 },
-	{ ToDo: 7, InProgress: 2, QA: 2, ReleaseReady: 1, Released: 0 },
-	{ ToDo: 5, InProgress: 2, QA: 4, ReleaseReady: 2, Released: 1 },
-	{ ToDo: 4, InProgress: 2, QA: 5, ReleaseReady: 5, Released: 1 },
-	{ ToDo: 3, InProgress: 2, QA: 4, ReleaseReady: 8, Released: 1 },
-	{ ToDo: 2, InProgress: 2, QA: 5, ReleaseReady: 9, Released: 1 },
-	{ ToDo: 2, InProgress: 2, QA: 6, ReleaseReady: 9, Released: 1 },
-	{ ToDo: 1, InProgress: 2, QA: 4, ReleaseReady: 8, Released: 5 }
+	{ ToDo: 11, InProgress: 3, ReadyToDeploy: 4, QA: 9, ReleaseReady: 0,  Released: 0 },
+	{ ToDo: 11, InProgress: 1, ReadyToDeploy: 6, QA: 9, ReleaseReady: 0,  Released: 0 },
+	{ ToDo: 11, InProgress: 1, ReadyToDeploy: 6, QA: 9, ReleaseReady: 0,  Released: 0 },
+	{ ToDo: 11, InProgress: 3, ReadyToDeploy: 1, QA: 6, ReleaseReady: 8,  Released: 0 },
+	{ ToDo: 10, InProgress: 4, ReadyToDeploy: 1, QA: 0, ReleaseReady: 14, Released: 0 },
+	{ ToDo: 13, InProgress: 3, ReadyToDeploy: 2, QA: 0, ReleaseReady: 0,  Released: 14 },
+	{ ToDo: 13, InProgress: 3, ReadyToDeploy: 2, QA: 0, ReleaseReady: 0,  Released: 14 },
+	{ ToDo: 12, InProgress: 7, ReadyToDeploy: 3, QA: 0, ReleaseReady: 0,  Released: 14 },
+	{ ToDo: 12, InProgress: 7, ReadyToDeploy: 3, QA: 0, ReleaseReady: 0,  Released: 14 },
+	{ ToDo: 12, InProgress: 4, ReadyToDeploy: 6, QA: 0, ReleaseReady: 0,  Released: 14 }
 ]
 
-var lanes = [ {name: 'ToDo', color: '#f00'}, {name: 'InProgress', color: '#ff0'}, {name: 'QA', color: '#0f0'}, {name: 'ReleaseReady', color: '#fff'}, {name: 'Released', color: '#00f'} ]
+var lanes = [
+	{name: 'ToDo', color: '#999'},
+	{name: 'InProgress', color: '#000'},
+	{name: 'ReadyToDeploy', color: '#982'},
+	{name: 'QA', color: '#652'},
+	{name: 'ReleaseReady', color: '#256'},
+	{name: 'Released', color: '#555'} ]
 
 function makeCFD(canvas, data, lanes) {
 	populateLanes(data, lanes)
+	var maxLane = lanes[lanes.length - 1]['max']
+	var vstep = Math.floor((canvas.height - 100) / maxLane[maxLane.length - 1])
 
 	$(lanes).each(function(i, lane) {
-		var lanePath = createBoundingPath(canvas, lane)
+		var lanePath = createBoundingPath(canvas, lane, vstep)
 		fillPath(canvas.getContext('2d'), lane['color'], lanePath)
 	})
 }
@@ -35,11 +43,10 @@ function fillPath(c, color, path) {
 	c.fill()
 }
 
-function createBoundingPath(canvas, lane) {
+function createBoundingPath(canvas, lane, vstep) {
 	var len = lane['max'].length
 	var hstep = Math.floor((canvas.width - 100) / len)
-	var vstep = Math.floor((canvas.height - 100) / lane['max'][len - 1])
-	
+
 	function makePoint(value,index) {
 		return { x: index * hstep, y: (canvas.height - value * vstep) }
 	}
