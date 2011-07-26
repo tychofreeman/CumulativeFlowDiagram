@@ -23,17 +23,62 @@ function makeCFD(canvas, data, lanes) {
 	populateLanes(data, lanes)
 	var maxLane = lanes[lanes.length - 1]['max']
 	var vstep = Math.floor((canvas.height - 100) / maxLane[maxLane.length - 1])
-
+	var hstep = Math.floor((canvas.width - 100) / data.length)
+	var c = canvas.getContext('2d')
 	$(lanes).each(function(i, lane) {
-		var lanePath = createBoundingPath(canvas, lane, vstep)
-		fillPath(canvas.getContext('2d'), lane['color'], lanePath)
+		var lanePath = createBoundingPath(canvas, lane, vstep, hstep)
+		fillPath(c, lane['color'], lanePath)
+	})
+
+	drawBounds(c, canvas)
+	drawHorizontalTics(canvas, c, hstep)
+}
+
+function drawBounds(c, canvas) {
+	c.beginPath()
+	c.lineWidth = 8
+	c.moveTo(0, canvas.height)
+	c.lineTo(0, 0)
+	c.stroke()
+	c.moveTo(0, canvas.height)
+	c.lineTo(canvas.width, canvas.height)
+	c.stroke()
+	c.closePath()
+}
+
+function drawLegend(canvas, lanes) {
+	var c = canvas.getContext('2d')
+	var max = lanes.length
+	$(lanes.reverse()).each(function(i, l) {
+		c.fillStyle = l['color']
+		c.fillRect(0, i * 20, 100, (i + 1) * 20)
+		c.font = "bold 12px sans-serif black"
+		c.fillStyle= "#fff"
+		c.fillText(l['name'], 10, (i + 1) * 20 - 5)
+	})
+}
+
+function drawVerticalTics(c) {
+}
+
+function drawHorizontalTics(canvas, c, hstep) {
+	$(data).each(function(i, d) {
+		c.lineWidth = 2
+		c.beginPath()
+		c.moveTo(i * hstep, canvas.height)
+		c.lineTo(i * hstep, canvas.height - 10)
+		c.stroke()
+		c.closePath()
 	})
 }
 
 function fillPath(c, color, path) {
 
 	c.fillStyle = color
+	c.lineWidth = 1
+	c.strokeStyle = '#000'
 	c.beginPath()
+	
 	c.moveTo(path[0].x, path[0].y)
 	$(path).each(function(i, point) {
 		c.lineTo(point.x, point.y)
@@ -41,11 +86,12 @@ function fillPath(c, color, path) {
 
 	c.closePath()
 	c.fill()
+	c.stroke()
+	c.save()
+
 }
 
-function createBoundingPath(canvas, lane, vstep) {
-	var len = lane['max'].length
-	var hstep = Math.floor((canvas.width - 100) / len)
+function createBoundingPath(canvas, lane, vstep, hstep) {
 
 	function makePoint(value,index) {
 		return { x: index * hstep, y: (canvas.height - value * vstep) }
@@ -76,7 +122,11 @@ function zeros(len) {
 
 $(document).ready(function() {
 
-	var canvas = document.getElementById('example')
+	var canvas = document.getElementById('diagram')
 
 	makeCFD(canvas, data, lanes)
+
+	var legendCanvas = document.getElementById('legend')
+
+	drawLegend(legendCanvas, lanes)
 })
